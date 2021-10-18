@@ -110,6 +110,7 @@ wait_unlock_barrier(uperf_shm_t *shm, int txn)
 		return (0);
 
 	bar = &shm->bar[txn];
+    sleep(1);
 	while (BARRIER_NOTREACHED(bar)) {
 		uperf_log_flush();
 		if (shm->global_error > 0)
