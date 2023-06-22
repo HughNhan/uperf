@@ -231,29 +231,29 @@ strand_fini(strand_t *s)
 	slave_info_list_t *sil;
 
 	/* Make sure strand is dead */
-    pthread_mutex_lock(&listen_conn_lock);  //HN
-    if ( s->listen_conn_ref_count[0] > 1 ) {
-        pthread_mutex_unlock(&listen_conn_lock);  //HN
-        PRINT_CUR_TIME();
-        HN_DEBUG_a("pre ref_count", s->listen_conn_ref_count[0]);
-        s->listen_conn_ref_count[0]--;
-        return;
+
+    for (i = 0; i < NUM_PROTOCOLS; i++) {
+        protocol_t *p = s->listen_conn[i];
+        int *ref_count = s->listen_conn_ref_count[i];
+        if (ref_count== NULL) {  // Other code paths that did not use ref_count
+            if (p != NULL) {
+                destroy_protocol(p->type, p);
+            }
+        } else {
+            // code path with ref_count
+            pthread_mutex_lock(&listen_conn_lock);
+            if (*ref_count == 1) { // last thread
+                free(ref_count);
+                destroy_protocol(p->type, p);
+            } else {
+                --*ref_count;       // sibling thread
+            }
+            pthread_mutex_unlock(&listen_conn_lock);
+        }
     }
+
     PRINT_CUR_TIME();
     HN_DEBUG("wiping out strand");
-	/* Make sure strand is dead */
-
-	for (i = 0; i < NUM_PROTOCOLS; i++) {
-		if (s->listen_conn[i] != 0) {
-			protocol_t *p = s->listen_conn[i];
-			/* FIXME: need to do reference counting */
-			destroy_protocol(p->type, p);
-			s->listen_conn[i] = 0;
-            s->listen_conn_ref_count[i] = 0;
-
-		}
-	}
-    pthread_mutex_unlock(&listen_conn_lock);  //HN
 
 	/* Close any open connections */
 	while (p) {
