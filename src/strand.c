@@ -133,8 +133,13 @@ int
 strand_add_connection(strand_t *s, protocol_t *p)
 {
 	p->next = s->cpool;
-	if (s->cpool)
+	if (s->cpool) {
+        if (!s->cpool->prev) {
+            PRINT_CUR_TIME();
+            HN_DEBUG("!prev")
+        }
 		s->cpool->prev = p;
+    }
 	s->cpool = p;
 	return (0);
 }
@@ -147,8 +152,13 @@ strand_delete_connection(strand_t *s, int id)
 		if (ptr->p_id == id) {
 			if (ptr->prev)
 				ptr->prev->next = ptr->next;
-			if (ptr->next)
+			if (ptr->next) {
+				if (!ptr->next->prev) {
+                    PRINT_CUR_TIME();
+                    HN_DEBUG("!prev");
+                }
 				ptr->next->prev = ptr->prev;
+            }
 			if (ptr == s->cpool)
 				s->cpool = ptr->next;
 			destroy_protocol(ptr->type, ptr);
