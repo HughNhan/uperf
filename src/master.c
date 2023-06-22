@@ -630,7 +630,6 @@ master(workorder_t *w)
 		}
 	}
 	uperf_log_flush();
-
 	if (ENABLED_HISTORY_STATS(options)) {
 		(void) fclose(options.history_fd);
 	}

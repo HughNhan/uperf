@@ -127,7 +127,6 @@ flowop_rw(strand_t *s, flowop_t *f)
 			if (errno != EINTR) {
 				int serrno = errno;
 				char msg[1024];
-                PRINT_CUR_TIME();
 				snprintf(msg, sizeof(msg), "Error for flowop %s ", f->name);
 				uperf_log_msg(UPERF_LOG_ERROR, serrno, msg);
 				/* snprintf could change errno */

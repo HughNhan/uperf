@@ -232,6 +232,7 @@ strand_fini(strand_t *s)
 
 	/* Make sure strand is dead */
 
+    HN_STACK_TRACE();
     for (i = 0; i < NUM_PROTOCOLS; i++) {
         protocol_t *p = s->listen_conn[i];
         int *ref_count = s->listen_conn_ref_count[i];
