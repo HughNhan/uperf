@@ -18,6 +18,34 @@
 #ifndef 	_UPERF_H
 #define		_UPERF_H
 
+
+#define HN_DBG
+#ifdef HN_DBG
+#define HN_DEBUG(s) \
+  {\
+    printf("%s:%d HN - %s\n", __FUNCTION__, __LINE__, s); \
+  }
+#define HN_DEBUG_a(s,a) \
+  {\
+    printf("%s:%d HN - %s, arg_a=%d\n", __FUNCTION__, __LINE__, s, a); \
+  }
+
+#define PRINT_CUR_TIME() \
+{\
+    char buff[100]; \
+    time_t now = time (0); \
+    strftime(buff, 100, "%Y-%m-%d %H:%M:%S.000: ", localtime (&now)); \
+    printf ("%s", buff); \
+}
+
+#else
+#define HN_DEBUG(s) 
+#define HN_DEBUG_a(s) 
+#define PRINT_CUR_TIME() 
+
+#endif
+
+
 /* Keep the data version as 0.2.5 to avoid the version mismatch problem. */
 #define UPERF_DATA_VERSION	"0.3.1"
 #define	UPERF_VERSION 		"1.0.8"

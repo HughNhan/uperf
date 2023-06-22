@@ -90,6 +90,7 @@ create_protocols(uperf_shm_t *shm, int nthr, flowop_t *f,
 		for (i = 0; i < nthr; i++) {
 			strand_t *s = shm_get_strand(shm, i + ssid);
 			s->listen_conn[protocol] = p;
+            s->listen_conn_ref_count[protocol] = nthr;
 			sl[i].port[protocol] = sl[0].port[protocol];
 		}
 		return (UPERF_SUCCESS);

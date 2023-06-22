@@ -209,6 +209,8 @@ strand_get_connection(strand_t *s, int id)
 	return (NULL);
 }
 
+pthread_mutex_t listen_conn_lock = PTHREAD_MUTEX_INITIALIZER;   //HN
+
 /* Called by strand on exit */
 void
 strand_fini(strand_t *s)
@@ -219,15 +221,25 @@ strand_fini(strand_t *s)
 	slave_info_list_t *sil;
 
 	/* Make sure strand is dead */
+    pthread_mutex_lock(&listen_conn_lock);  //HN
+    if ( s->listen_conn_ref_count[0] > 1 ) {
+        s->listen_conn_ref_count[0]--;
+        pthread_mutex_unlock(&listen_conn_lock);  //HN
+        return;
+    }
+
 	for (i = 0; i < NUM_PROTOCOLS; i++) {
 		if (s->listen_conn[i] != 0) {
 			protocol_t *p = s->listen_conn[i];
 			/* FIXME: need to do reference counting */
 			destroy_protocol(p->type, p);
 			s->listen_conn[i] = 0;
+            s->listen_conn_ref_count[i] = 0;
 
 		}
 	}
+    pthread_mutex_unlock(&listen_conn_lock);  //HN
+
 	/* Close any open connections */
 	while (p) {
 		ptmp = p->next;
