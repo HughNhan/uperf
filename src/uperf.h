@@ -21,6 +21,11 @@
 
 #define HN_DBG
 #ifdef HN_DBG
+
+#include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
+
 #define HN_DEBUG(s) \
   {\
     printf("%s:%d HN - %s\n", __FUNCTION__, __LINE__, s); \
@@ -32,10 +37,12 @@
 
 #define PRINT_CUR_TIME() \
 {\
-    char buff[100]; \
-    time_t now = time (0); \
-    strftime(buff, 100, "%Y-%m-%d %H:%M:%S.000: ", localtime (&now)); \
-    printf ("%s", buff); \
+    struct timeval curTime; \
+    char buf[32]; \
+    gettimeofday(&curTime, NULL); \
+    size_t endpos = strftime(buf, sizeof buf, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec)); \
+    snprintf(buf + endpos, sizeof buf - endpos, ":%03d", (int) (curTime.tv_usec / 1000));\
+    printf ("%s", buf); \
 }
 
 #else
