@@ -220,6 +220,8 @@ strand_fini(strand_t *s)
 	protocol_t *ptmp;
 	slave_info_list_t *sil;
 
+    PRINT_CUR_TIME();
+    HN_DEBUG("enter");
 	/* Make sure strand is dead */
     pthread_mutex_lock(&listen_conn_lock);  //HN
     if ( s->listen_conn_ref_count[0] > 1 ) {
