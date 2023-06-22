@@ -232,10 +232,6 @@ master_prepare_to_exit(uperf_shm_t *shm)
 static void
 print_progress(uperf_shm_t *shm, newstats_t prev)
 {
-    if (!prev) {
-        PRINT_CUR_TIME();
-        HN_DEBUG("!prev");
-    }
 	if (ENABLED_STATS(options)) {
 		newstats_t pns;
 		update_aggr_stat(shm);
