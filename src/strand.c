@@ -230,15 +230,18 @@ strand_fini(strand_t *s)
 	protocol_t *ptmp;
 	slave_info_list_t *sil;
 
-    PRINT_CUR_TIME();
-    HN_DEBUG("enter");
 	/* Make sure strand is dead */
     pthread_mutex_lock(&listen_conn_lock);  //HN
     if ( s->listen_conn_ref_count[0] > 1 ) {
-        s->listen_conn_ref_count[0]--;
         pthread_mutex_unlock(&listen_conn_lock);  //HN
+        PRINT_CUR_TIME();
+        HN_DEBUG_a("pre ref_count", s->listen_conn_ref_count[0]);
+        s->listen_conn_ref_count[0]--;
         return;
     }
+    PRINT_CUR_TIME();
+    HN_DEBUG("wiping out strand");
+	/* Make sure strand is dead */
 
 	for (i = 0; i < NUM_PROTOCOLS; i++) {
 		if (s->listen_conn[i] != 0) {
