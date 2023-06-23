@@ -202,6 +202,9 @@ uperf_log_msg(uperf_msg_type type, int myerrno, char *msg)
 		return (UPERF_SUCCESS);
 
 	uperf_debug("logging: %d %s\n", type, msg);
+    if (type == 0) {
+        HN_STACK_TRACE();
+    }
 
 	(void) pthread_mutex_lock(&log->lock);
 	no = log->num_msg;

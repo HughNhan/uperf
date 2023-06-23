@@ -269,7 +269,8 @@ generic_listen(protocol_t *p, int pflag, void* options)
 		}
 	}
 	listen(p->fd, LISTENQ);
-	uperf_debug("Listening on port %d\n", p->port);
+	//uperf_debug("Listening on port %d\n", p->port);
+	uperf_debug("%s Listening on port %d\n", __FUNCTION__, p->port);
 
 	return (p->port);
 }
