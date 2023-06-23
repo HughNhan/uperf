@@ -303,7 +303,7 @@ flag_error(char *reason)
 {
 	global_shm->global_error++;
 	if (reason) {
-        PRINT_CUR_TIME();
+        HN_CUR_TIME();
 		uperf_error("%s:global_error=%d, %s\n", __func__, global_shm->global_error, reason);
     }
 }

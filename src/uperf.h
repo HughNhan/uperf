@@ -26,16 +26,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define HN_DEBUG(s) \
-  {\
-    printf("%s:%d HN - %s\n", __FUNCTION__, __LINE__, s); \
-  }
-#define HN_DEBUG_a(s,a) \
-  {\
-    printf("%s:%d HN - %s, arg_a=%d\n", __FUNCTION__, __LINE__, s, a); \
-  }
-
-#define PRINT_CUR_TIME() \
+#define HN_CUR_TIME() \
 {\
     struct timeval curTime; \
     char buf[32]; \
@@ -44,6 +35,17 @@
     snprintf(buf + endpos, sizeof buf - endpos, ":%03d", (int) (curTime.tv_usec / 1000));\
     printf ("%s ", buf); \
 }
+
+#define HN_DEBUG(s) \
+  {\
+    HN_CUR_TIME(); \
+    printf("%s:%d HN - %s\n", __FUNCTION__, __LINE__, s); \
+  }
+#define HN_DEBUG_a(s,a) \
+  {\
+    HN_CUR_TIME(); \
+    printf("%s:%d HN - %s, arg_a=%d\n", __FUNCTION__, __LINE__, s, a); \
+  }
 
 #include <execinfo.h>
 #include <stdio.h>
@@ -66,7 +68,7 @@
 #else
 #define HN_DEBUG(s) 
 #define HN_DEBUG_a(s) 
-#define PRINT_CUR_TIME() 
+#define HN_CUR_TIME() 
 #define HN_STACK_TRACE() 
 
 #endif
