@@ -108,6 +108,7 @@ generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 	socklen_t len;
 	const int off = 0;
 
+	HN_CUR_TIME();
 	uperf_debug("Connecting to %s:%d\n", p->host, p->port);
 
 	switch (serv->ss_family) {
@@ -269,7 +270,7 @@ generic_listen(protocol_t *p, int pflag, void* options)
 		}
 	}
 	listen(p->fd, LISTENQ);
-	//uperf_debug("Listening on port %d\n", p->port);
+    HN_CUR_TIME(); 
 	uperf_debug("%s: Listening on port %d\n", __FUNCTION__, p->port);
 
 	return (p->port);
