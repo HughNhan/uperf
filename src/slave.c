@@ -154,7 +154,8 @@ wait_unlock_barrier(uperf_shm_t *shm, int txn)
  *		kill threads
  * 		goto state3
  */
-static int
+// HN static int
+int
 slave_master_poll(uperf_shm_t *shm, protocol_t *control)
 {
 	uperf_command_t uc;
@@ -278,7 +279,8 @@ slave_init(protocol_t *p)
  *	join all threads
  *	goodbye with master
  */
-static int
+// HN static int
+int
 slave_master(protocol_t *p)
 {
 	slave_info_t *sl = NULL;

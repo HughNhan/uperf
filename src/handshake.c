@@ -419,6 +419,7 @@ slave_handshake(uperf_shm_t *shm, protocol_t *p)
 	hs_phase1_t hsp1;
 	hs_phase1_ack_t hsp1a;
 
+    HN_CUR_TIME();
 	uperf_debug("%s begin\n", __func__);
 	/* LINTED */
 	while (1) {
