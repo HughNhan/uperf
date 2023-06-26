@@ -19,7 +19,7 @@
 #define		_UPERF_H
 
 
-#define HN_DBG
+//#define HN_DBG
 #ifdef HN_DBG
 
 #include <stdio.h>
@@ -67,7 +67,7 @@
 
 #else
 #define HN_DEBUG(s) 
-#define HN_DEBUG_a(s) 
+#define HN_DEBUG_a(s,a) 
 #define HN_CUR_TIME() 
 #define HN_STACK_TRACE() 
 
