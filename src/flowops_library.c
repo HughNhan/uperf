@@ -65,8 +65,11 @@ my_random(uint32_t x, uint32_t y)
 	return ((uint32_t) d);
 }
 
-
+#ifndef HN_DBG
 static int
+#else
+int
+#endif
 flowop_rw(strand_t *s, flowop_t *f)
 {
 	int n;
@@ -79,6 +82,7 @@ flowop_rw(strand_t *s, flowop_t *f)
 		if (f->connection == NULL) {
 			char msg[1024];
 			snprintf(msg, sizeof(msg), "No such connection %d", f->p_id);
+            HN_DEBUG("connection error");
 			uperf_log_msg(UPERF_LOG_ERROR, 0, msg);
 			return (-1);
 		}

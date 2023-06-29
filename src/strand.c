@@ -54,6 +54,7 @@ strand_init_group(uperf_shm_t *shm, group_t *g, int ssid)
 	int j;
 	protocol_t **pptr;
 
+    HN_DEBUG("enter");
 	uperf_debug("%s: ssid=%d\n", __func__, ssid);
 	pptr = shm->connection_list;
 
@@ -193,14 +194,21 @@ strand_get_connection(strand_t *s, int id)
 	protocol_t *ptr = s->cpool;
 
 	assert(s);
-	if (!s->cpool)
+	if (!s->cpool) {
+        HN_DEBUG("cpool == NULL");
+        HN_STACK_TRACE();
 		return (NULL);
+    }
 
 	/* check cache */
 	for (i = 0; i < s->ccache_size; i++) {
 		if (s->ccache[i] == NULL)
 			continue;
 		if ((s->ccache[i]->p_id == id) || (id == -1)) {
+            if ( NULL == s->ccache[i]) {
+                HN_DEBUG("ccache == NULL");
+                HN_STACK_TRACE();
+            }
 			return (s->ccache[i]);
 		}
 	}
