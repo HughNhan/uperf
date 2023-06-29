@@ -116,7 +116,11 @@ say_goodbye(goodbye_stat_t *total, protocol_t *p, int timeout)
  * Connect to all remote clients and exchange run statistics.
  * Any errors encountered by the slave are also received.
  */
+#ifndef HN_DBG
 static uint64_t
+#else
+int
+#endif
 say_goodbyes_and_close(goodbye_stat_t *gtotal, int timeout)
 {
 	int i;
@@ -142,7 +146,11 @@ say_goodbyes_and_close(goodbye_stat_t *gtotal, int timeout)
 	return (0);
 }
 
+#ifndef HN_DBG
 static int
+#else
+int
+#endif
 group_assign_stat(uperf_shm_t *shm, group_t *g, uint32_t sid)
 {
 	txn_t *txn;
@@ -173,7 +181,11 @@ group_assign_stat(uperf_shm_t *shm, group_t *g, uint32_t sid)
  *      one of the connections for which data is available.
  * -1 : indicates error
  */
+#ifndef HN_DBG
 static int
+#else
+int
+#endif
 poll_slaves()
 {
 	int i;
@@ -197,7 +209,11 @@ poll_slaves()
 }
 
 /* Send a command to all slaves */
+#ifndef HB_DBG
 static int
+#else
+int
+#endif
 send_command_to_slaves(uperf_cmd cmd, int value)
 {
 	int ret = 0;
@@ -217,7 +233,11 @@ send_command_to_slaves(uperf_cmd cmd, int value)
 	return (ret);
 }
 
+#ifndef HN_DBG
 static void
+#else
+void
+#endif
 master_prepare_to_exit(uperf_shm_t *shm)
 {
 	static int cleaned_up = 0;
@@ -245,7 +265,11 @@ print_progress(uperf_shm_t *shm, newstats_t prev)
 	}
 }
 
+#ifndef HN_DBG
 static int
+#else
+int
+#endif
 master_poll(uperf_shm_t *shm)
 {
 	int no_txn;
@@ -342,7 +366,11 @@ master_poll(uperf_shm_t *shm)
 }
 
 /* Create a control connection to a slave */
+#ifndef HN_DBG
 static int
+#else
+int
+#endif
 new_control_connection(group_t *g, char *host)
 {
 	protocol_t *p;
@@ -378,7 +406,11 @@ new_control_connection(group_t *g, char *host)
 	return (UPERF_FAILURE);
 }
 
+#ifndef HN_DBG
 static int
+#else
+int
+#endif
 create_control_connections(workorder_t *w)
 {
 	int i;
@@ -443,7 +475,11 @@ master_init(workorder_t *w)
 	return (shm);
 }
 
+#ifndef HN_DBG
 static int
+#else
+int
+#endif
 spawn_strands_group(uperf_shm_t *shm, group_t *gp, int id)
 {
 	int j;
