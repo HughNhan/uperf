@@ -47,6 +47,12 @@
     printf("%s:%d HN - %s, arg_a=%d\n", __FUNCTION__, __LINE__, s, a); \
   }
 
+#define HN_PRINT(...) \
+  {\
+    HN_CUR_TIME(); \
+    hn_print(__VA_ARGS__);\
+  }
+
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,6 +74,7 @@
 #else
 #define HN_DEBUG(s) 
 #define HN_DEBUG_a(s,a) 
+#define HN_PRINT(...) 
 #define HN_CUR_TIME() 
 #define HN_STACK_TRACE() 
 

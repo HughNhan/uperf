@@ -238,3 +238,13 @@ uperf_log_msg(uperf_msg_type type, int myerrno, char *msg)
 
 	return (UPERF_SUCCESS);
 }
+
+hn_print(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void) vprintf(fmt, ap);
+	va_end(ap);
+}
+

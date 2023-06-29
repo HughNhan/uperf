@@ -78,6 +78,7 @@ int ulog(uperf_msg_type type, int myerrno, char *fmt, ...);
 int uperf_log_num_msgs();
 void uperf_printer(uperf_log_level, uperf_msg_type, const char *, ...);
 int uperf_set_log_level(uperf_log_level);
+void hn_print(const char *, ...);
 
 /*
  * Macros that define the error functions and maps back to uperf_printer

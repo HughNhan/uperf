@@ -141,6 +141,7 @@ strand_add_connection(strand_t *s, protocol_t *p)
 		s->cpool->prev = p;
     }
 	s->cpool = p;
+    HN_PRINT("%s:%d strand=%p proto=%p\n",__FUNCTION__, __LINE__,s,p);
 	return (0);
 }
 
@@ -148,6 +149,7 @@ int
 strand_delete_connection(strand_t *s, int id)
 {
 	protocol_t *ptr = s->cpool;
+    HN_PRINT("%s:%d strand=%p id=%d\n",__FUNCTION__, __LINE__,s,id);
 	while (ptr) {
 		if (ptr->p_id == id) {
 			if (ptr->prev)
@@ -173,6 +175,7 @@ void
 strand_put_connection_in_cache(strand_t *s, protocol_t *p)
 {
 	static int current_replacement = 0;
+    HN_PRINT("%s:%d strand=%p proto=%p\n",__FUNCTION__, __LINE__,s,p);
 
 	if (s->ccache_size == STRAND_CONNECTION_CACHE_SIZE - 1) {
 		s->ccache[current_replacement] = p;
@@ -192,6 +195,7 @@ strand_get_connection(strand_t *s, int id)
 {
 	int i;
 	protocol_t *ptr = s->cpool;
+    HN_PRINT("%s:%d strand=%p id=%d\n",__FUNCTION__, __LINE__,s,id);
 
 	assert(s);
 	if (!s->cpool) {
