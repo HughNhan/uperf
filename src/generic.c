@@ -314,6 +314,7 @@ generic_read(protocol_t *p, void *buffer, int size, void *options)
 
 	if (timeout > 0) {
 		if ((generic_poll(p->fd, timeout, POLLIN)) <= 0)
+            HN_STACK_TRACE();
 			return (-1);
 	}
 	return (read(p->fd, buffer, size));

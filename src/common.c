@@ -203,7 +203,18 @@ uperf_send_command(protocol_t *p, uperf_cmd command, uint32_t val)
 	uperf_info("TX command [%s, %d] to %s\n", cmds[uc.command], uc.value,
 	    p->host);
 
+#ifndef HN_DBG
 	return (p->write(p, &uc, sizeof (uperf_command_t), NULL));
+#else
+    {
+        int err;   
+	    err = p->write(p, &uc, sizeof (uperf_command_t), NULL);
+        if (err == -1) {
+            HN_STACK_TRACE();
+        }
+        return err;
+    }
+#endif
 }
 
 int

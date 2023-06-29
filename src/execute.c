@@ -42,9 +42,11 @@ typedef int (*generic_execute_func)(strand_t *, void *);
 /*
  * Execute a function for specified duration
  */
-//static int
-int duration_execute(strand_t *sp, void *b, hrtime_t stop, generic_execute_func callback);
-int 
+#ifndef HN_DBG
+static int
+#else
+int
+#endif
 duration_execute(strand_t *sp, void *b, hrtime_t stop,
     generic_execute_func callback)
 {
@@ -61,9 +63,11 @@ duration_execute(strand_t *sp, void *b, hrtime_t stop,
 }
 
 /* Returns one of UPERF_SUCCESS, UPERF_FAILURE, UPERF_DURATAION_EXPIRED */
-// static int
-static int flowop_execute(strand_t *sp, flowop_t *fp);
+#ifndef HN_DBG
+static int
+#else
 int
+#endif
 flowop_execute(strand_t *sp, flowop_t *fp)
 {
 	uint64_t i;
@@ -90,10 +94,11 @@ flowop_execute(strand_t *sp, flowop_t *fp)
 }
 
 /* Returns one of UPERF_SUCCESS, UPERF_FAILURE, UPERF_DURATAION_EXPIRED */
-//static int
-int txn_execute_once(strand_t *strand, txn_t *txn);
-//
+#ifndef HN_DGB
+static int
+#else
 int
+#endif
 txn_execute_once(strand_t *strand, txn_t *txn)
 {
 	flowop_t *f;
@@ -141,9 +146,11 @@ txn_execute_rate(strand_t *sp, void *tp)
 }
 
 /* Returns one of UPERF_SUCCESS, UPERF_FAILURE, UPERF_DURATAION_EXPIRED */
-// static int
-int txn_duration(strand_t *s, txn_t *txn);
+#ifndef HN_DBG
+static int
+#else
 int
+#endif
 txn_duration(strand_t *s, txn_t *txn)
 {
 	hrtime_t stop;
@@ -159,9 +166,11 @@ txn_duration(strand_t *s, txn_t *txn)
 	return (duration_execute(s, txn, stop, callback));
 }
 
-// static int
-int txn_iterations(strand_t *sp, txn_t *tp);
+#ifndef HN_DBG
+static int
+#else
 int
+#endif
 txn_iterations(strand_t *sp, txn_t *tp)
 {
 	int i;

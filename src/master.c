@@ -202,6 +202,7 @@ poll_slaves()
 	}
 	error = poll(pfd, no_pfds, timeout);
 	if (error < 0) {
+        HN_STACK_TRACE();
 		perror("poll:");
 	}
 

@@ -154,8 +154,11 @@ wait_unlock_barrier(uperf_shm_t *shm, int txn)
  *		kill threads
  * 		goto state3
  */
-// HN static int
+#ifndef HN_DBG
+static int
+#else
 int
+#endif
 slave_master_poll(uperf_shm_t *shm, protocol_t *control)
 {
 	uperf_command_t uc;
@@ -163,6 +166,7 @@ slave_master_poll(uperf_shm_t *shm, protocol_t *control)
 	for (;;) {
 		shm->current_time = GETHRTIME();
 		if (shm->global_error > 0) {
+            HN_STACK_TRACE();
 			return (-1);
 		}
 		if (generic_poll(control->fd, 1000, POLLIN) > 0) {
@@ -197,7 +201,11 @@ cmd\n");
 	return (0);
 }
 
+#ifndef HN_DBG
 static void
+#else
+void
+#endif
 slave_master_goodbye(uperf_shm_t *shm, protocol_t *control)
 {
 	goodbye_t goodbye;
@@ -279,8 +287,11 @@ slave_init(protocol_t *p)
  *	join all threads
  *	goodbye with master
  */
-// HN static int
+#ifndef HN_DBG
+static int
+#else
 int
+#endif
 slave_master(protocol_t *p)
 {
 	slave_info_t *sl = NULL;
@@ -317,6 +328,7 @@ slave_master(protocol_t *p)
 		char msg[128];
 		(void) snprintf(msg, sizeof (msg), "Error creating ports: %s",
 			strerror(errno));
+        HN_CUR_TIME();
 		uperf_error("%s\n", msg);
 		slave_handshake_p2_failure(msg, p, 0);
 		free(shm);
@@ -347,6 +359,7 @@ slave_master(protocol_t *p)
 	newstat_begin(0, AGG_STAT(shm), 0, 0);
 	if ((error = slave_master_poll(shm, p)) != 0) {
 		/* Kill threads on error */
+        HN_STACK_TRACE();
 		strand_killall(shm);
 	}
 	wait_for_strands(shm, error);
@@ -420,10 +433,12 @@ slave()
 	uperf_log_init(&log);
 
 	if (protocol_init(NULL) == UPERF_FAILURE) {
+        HN_STACK_TRACE();
 		return (-1);
 	}
 
 	if (setup_slave_signal() != 0) {
+        HN_STACK_TRACE();
 		return (1);
 	}
 	slave_conn = create_protocol(options.control_proto, "",
