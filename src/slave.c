@@ -114,7 +114,18 @@ wait_unlock_barrier(uperf_shm_t *shm, int txn)
 		uperf_log_flush();
 		if (shm->global_error > 0)
 			return (-1);
+        {
+            // HN added block
+		    if (wait_time-- > 0) {
+   	            HN_CUR_TIME();
+				HN_PRINT("%d threads not at barrier %d\n",
+		                    barrier_notreached(bar), txn);
+			    HN_PRINT("%d second wait time remained\n", wait_time)
+                sleep(1);
+                continue;
+		    }
 
+        }
 		uperf_info("%d threads not at barrier %d sending SIGUSR2\n",
 		    barrier_notreached(bar), txn);
 		if (signal_all_strands(shm, -1, SIGUSR2) != 0) {
