@@ -102,6 +102,8 @@ slave_spawn_strands(uperf_shm_t *shm, protocol_t *control)
 static int
 wait_unlock_barrier(uperf_shm_t *shm, int txn)
 {
+#define SECOND_TO_MSEC(x) (x)*1000
+#define msleep(m)  usleep(m*1000)
 	int wait_time = 5;
 	char msg[128];
 	barrier_t *bar;
@@ -110,21 +112,29 @@ wait_unlock_barrier(uperf_shm_t *shm, int txn)
 		return (0);
 
 	bar = &shm->bar[txn];
+
+
+#ifdef  HN_BARRIER_RETRY
+    {
+	    int retry_time =  SECOND_TO_MSEC(wait_time);
+        int max_retry = retry_time;
+	    while (BARRIER_NOTREACHED(bar)) {
+		    if (retry_time-- > 0) {
+                msleep(1);
+		    } else {
+                break;
+            }
+        }
+        if (max_retry > retry_time) {
+	        uperf_info("unlocking barrier %d required %d msec retry\n", txn, max_retry-retry_time);
+        }
+    }
+#endif
+
 	while (BARRIER_NOTREACHED(bar)) {
 		uperf_log_flush();
 		if (shm->global_error > 0)
 			return (-1);
-#ifdef  HN_BARRIER_RETRY
-        {
-		    if (wait_time-- > 0) {
-				uperf_info("HN - %d threads not at barrier %d\n",
-		                    barrier_notreached(bar), txn);
-			    uperf_info("HN- %d seconds wait time remained\n", wait_time);
-                sleep(1);
-                continue;
-		    }
-        }
-#endif
 		uperf_info("%d threads not at barrier %d sending SIGUSR2\n",
 		    barrier_notreached(bar), txn);
 		if (signal_all_strands(shm, -1, SIGUSR2) != 0) {
