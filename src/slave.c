@@ -117,10 +117,9 @@ wait_unlock_barrier(uperf_shm_t *shm, int txn)
 #ifdef  HN_BARRIER_RETRY
         {
 		    if (wait_time-- > 0) {
-   	            HN_CUR_TIME();
-				HN_PRINT("%d threads not at barrier %d\n",
+				uper_log_msg(UPERF_LOG_INFO, "HN - %d threads not at barrier %d\n",
 		                    barrier_notreached(bar), txn);
-			    HN_PRINT("%d second wait time remained\n", wait_time)
+			    uperf_log_msg(UPERF_LOG_INFO, "HN- %d seconds wait time remained\n", wait_time)
                 sleep(1);
                 continue;
 		    }
