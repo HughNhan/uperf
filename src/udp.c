@@ -226,6 +226,10 @@ protocol_udp_write(protocol_t *p, void *buffer, int n, void *options)
  * in business
  */
 /* ARGSUSED1 */
+
+#include "main.h"
+extern ipt_t ipt;
+
 static int
 protocol_udp_listen(protocol_t *p, void *options)
 {
@@ -274,6 +278,15 @@ protocol_udp_listen(protocol_t *p, void *options)
 		sin6->sin6_family = AF_INET6;
 		sin6->sin6_port = htons(pd->port);
 		sin6->sin6_addr = in6addr_any;
+
+                if (ipt.bind_address) {
+                    struct in6_addr ipv4_mapped_addr;
+                    char full_address[64] = "::ffff:";
+                    strcat(full_address, ipt.bind_address);
+                    inet_pton(AF_INET6, full_address, &ipv4_mapped_addr);
+                    memcpy(&sin6->sin6_addr.s6_addr[0], &ipv4_mapped_addr, sizeof(struct in6_addr));
+                }
+
 		if (bind(pd->sock, (const struct sockaddr *)sin6, sizeof(struct sockaddr_in6)) < 0) {
 			uperf_log_msg(UPERF_LOG_ERROR, errno, "bind");
 			return (UPERF_FAILURE);
