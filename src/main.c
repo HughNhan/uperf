@@ -171,7 +171,7 @@ init_options(int argc, char **argv)
 				uperf_fatal("Please specify interface IP \n");
 			}
 			ipt.bind_address = strdup(optarg);
-			uperf_error("-B arg is %s\n", ipt.bind_address);
+			uperf_info("-B arg is %s\n", ipt.bind_address);
 		break;
 
 #ifdef USE_CPC
@@ -347,7 +347,6 @@ main(int argc, char **argv)
 	options_t *options_p;
 	struct rlimit rl = {32*1024, 32*1024};
 	workorder_t *worklist = NULL;
-
 
 	options_p = init_options(argc, argv);
 	if (options_p == NULL) {

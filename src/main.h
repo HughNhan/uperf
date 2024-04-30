@@ -76,6 +76,4 @@ typedef struct options {
 typedef struct ipsec_hack{
     char *bind_address;  // HN
 }ipt_t;
-
-
 #endif /* __MAIN_H */

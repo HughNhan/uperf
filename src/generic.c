@@ -235,8 +235,9 @@ generic_listen(protocol_t *p, int pflag, void* options)
                     strcat(full_address, ipt.bind_address);
                     inet_pton(AF_INET6, full_address, &ipv4_mapped_addr);
                     memcpy(&sin6.sin6_addr.s6_addr[0], &ipv4_mapped_addr, sizeof(struct in6_addr));
-                }
-
+                } else {
+                    sin6.sin6_addr = in6addr_any;
+                } 
 		if (bind(p->fd, (const struct sockaddr *)&sin6, sizeof(struct sockaddr_in6)) < 0) {
 			ulog_err("%s: Cannot bind to port %d",
 			         protocol_to_str(p->type), p->port);
