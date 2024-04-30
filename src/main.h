@@ -73,4 +73,9 @@ typedef struct options {
 	proto_type_t control_proto;
 }options_t;
 
+typedef struct ipsec_hack{
+    char *bind_address;  // HN
+}ipt_t;
+
+
 #endif /* __MAIN_H */

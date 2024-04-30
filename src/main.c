@@ -60,6 +60,7 @@ _syscall0(pid_t, gettid)
 #endif /* UPERF_ANDROID */
 
 options_t options;
+ipt_t  ipt;  //HN
 static options_t *init_options(int argc, char **argv);
 extern workorder_t *parse_app_profile(char *app_profile_name);
 
@@ -163,8 +164,16 @@ init_options(int argc, char **argv)
 	options.control_proto = PROTOCOL_TCP;
 	oserver = oclient = ofile = 0;
 
-	while ((ch = getopt(argc, argv, "E:epTgtfknasm:X:i:P:S:RvVh")) != EOF) {
+	while ((ch = getopt(argc, argv, "B:E:epTgtfknasm:X:i:P:S:RvVh")) != EOF) {
 		switch (ch) {
+		case 'B':
+			if (!optarg) {
+				uperf_fatal("Please specify interface IP \n");
+			}
+			ipt.bind_address = strdup(optarg);
+			uperf_error("-B arg is %s\n", ipt.bind_address);
+		break;
+
 #ifdef USE_CPC
 		case 'E':
 			if (optarg) {
@@ -338,6 +347,7 @@ main(int argc, char **argv)
 	options_t *options_p;
 	struct rlimit rl = {32*1024, 32*1024};
 	workorder_t *worklist = NULL;
+
 
 	options_p = init_options(argc, argv);
 	if (options_p == NULL) {
