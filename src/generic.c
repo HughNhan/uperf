@@ -202,6 +202,10 @@ generic_verify_socket_buffer(int fd, int wndsz)
 }
 
 /* ARGSUSED */
+
+#include "main.h"
+extern ipt_t ipt;
+
 int
 generic_listen(protocol_t *p, int pflag, void* options)
 {
@@ -225,7 +229,15 @@ generic_listen(protocol_t *p, int pflag, void* options)
 		memset(&sin6, 0, sizeof(struct sockaddr_in6));
 		sin6.sin6_family = AF_INET6;
 		sin6.sin6_port = htons(p->port);
-		sin6.sin6_addr = in6addr_any;
+                if (ipt.bind_address) {
+                    struct in6_addr ipv4_mapped_addr;
+                    char full_address[64] = "::ffff:";
+                    strcat(full_address, ipt.bind_address);
+                    inet_pton(AF_INET6, full_address, &ipv4_mapped_addr);
+                    memcpy(&sin6.sin6_addr.s6_addr[0], &ipv4_mapped_addr, sizeof(struct in6_addr));
+                } else {
+                    sin6.sin6_addr = in6addr_any;
+                } 
 		if (bind(p->fd, (const struct sockaddr *)&sin6, sizeof(struct sockaddr_in6)) < 0) {
 			ulog_err("%s: Cannot bind to port %d",
 			         protocol_to_str(p->type), p->port);
