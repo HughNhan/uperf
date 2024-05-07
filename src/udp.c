@@ -373,9 +373,33 @@ protocol_udp_connect(protocol_t *p, void *options)
 	}
 	switch (pd->addr_info.ss_family) {
 	case AF_INET:
+		if (ipt.bind_address) {
+			hn_print("HN %s:%d bind_address=%s\n", __FUNCTION__, __LINE__, ipt.bind_address);
+			struct sockaddr_in sin;
+			memset(&sin, 0, sizeof(struct sockaddr_in));
+			sin.sin_family = AF_INET;
+			sin.sin_port = htons(pd->port);
+			if (inet_pton(AF_INET, ipt.bind_address, &sin.sin_addr) != 1) {
+				ulog_err("HN %s:%d failed bind address", __FUNCTION__, __LINE__);
+				return (UPERF_FAILURE);
+			}
+			const int on = 1;
+			if (setsockopt(pd->sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int)) < 0) {
+				ulog_err("%s: Cannot set SO_REUSEADDR", protocol_to_str(p->type));
+			}
+			if (bind(pd->sock, (const struct sockaddr *)&sin, sizeof(struct sockaddr_in)) < 0) {
+				ulog_err("%s: Cannot bind to port %d",protocol_to_str(p->type), pd->port);
+				return (UPERF_FAILURE);
+			}
+		}
+
 		((struct sockaddr_in *)&pd->addr_info)->sin_port = htons(pd->port);
 		break;
 	case AF_INET6:
+		if (ipt.bind_address) {
+			ulog_err("%s: Cannot bind to IPv6 port %d not supported",protocol_to_str(p->type), pd->port);
+			return (UPERF_FAILURE);
+		}
 		((struct sockaddr_in6 *)&pd->addr_info)->sin6_port = htons(pd->port);
 		if (setsockopt(pd->sock, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(int)) < 0) {
 			return (UPERF_FAILURE);

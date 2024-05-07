@@ -61,6 +61,11 @@
 #define	LISTENQ		10240	/* 2nd argument to listen() */
 #define	TIMEOUT		1200000	/* Argument to poll */
 
+
+#include "main.h"
+extern ipt_t ipt;
+
+
 int
 name_to_addr(const char *address, struct sockaddr_storage *saddr)
 {
@@ -111,12 +116,39 @@ generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 	HN_CUR_TIME();
 	uperf_debug("Connecting to %s:%d\n", p->host, p->port);
 
+	hn_print("HN %s:%d\n", __FUNCTION__, __LINE__);
 	switch (serv->ss_family) {
 	case AF_INET:
+		if (ipt.bind_address) {
+			hn_print("HN %s:%d bind_address=%s\n", __FUNCTION__, __LINE__, ipt.bind_address);
+			struct sockaddr_in sin;
+			memset(&sin, 0, sizeof(struct sockaddr_in));
+			sin.sin_family = AF_INET;
+			sin.sin_port = htons(p->port);
+			if (inet_pton(AF_INET, ipt.bind_address, &sin.sin_addr) != 1) {
+				ulog_err("HN %s:%d failed bind address", __FUNCTION__, __LINE__);
+				return (UPERF_FAILURE);
+			}
+			const int on = 1;
+			if (setsockopt(p->fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int)) < 0) {
+				ulog_err("%s: Cannot set SO_REUSEADDR", protocol_to_str(p->type));
+			}
+			if (bind(p->fd, (const struct sockaddr *)&sin, sizeof(struct sockaddr_in)) < 0) {
+				ulog_err("%s: Cannot bind to port %d", protocol_to_str(p->type), p->port);
+				return (UPERF_FAILURE);
+			}
+
+			len = (socklen_t)sizeof(struct sockaddr_in);
+			hn_print("HN %s:%d bind_address=%s succeeded\n", __FUNCTION__, __LINE__, ipt.bind_address);
+		}
 		((struct sockaddr_in *)serv)->sin_port = htons(p->port);
 		len = (socklen_t)sizeof(struct sockaddr_in);
 		break;
 	case AF_INET6:
+		if (ipt.bind_address) {
+			ulog_err("%s: bind IPv6 port %d not supported", protocol_to_str(p->type), p->port);
+			return (UPERF_FAILURE);
+		}
 		((struct sockaddr_in6 *)serv)->sin6_port = htons(p->port);
 		len = (socklen_t)sizeof(struct sockaddr_in6);
 		if (setsockopt(p->fd, IPPROTO_IPV6, IPV6_V6ONLY, &off, sizeof(int)) < 0) {
@@ -203,9 +235,6 @@ generic_verify_socket_buffer(int fd, int wndsz)
 }
 
 /* ARGSUSED */
-
-#include "main.h"
-extern ipt_t ipt;
 
 int
 generic_listen(protocol_t *p, int pflag, void* options)
