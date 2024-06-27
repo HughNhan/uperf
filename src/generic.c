@@ -120,11 +120,11 @@ generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 	switch (serv->ss_family) {
 	case AF_INET:
 		if (ipt.bind_address) {
-			hn_print("HN %s:%d tid=%d, bind_address=%s\n", __FUNCTION__, __LINE__, pthread_self(),  ipt.bind_address);
 			struct sockaddr_in sin;
 			memset(&sin, 0, sizeof(struct sockaddr_in));
 			sin.sin_family = AF_INET;
-			sin.sin_port = htons(p->port);
+			// sin.sin_port = htons(p->port);
+			sin.sin_port = 0;	 //any availabel port
 			if (inet_pton(AF_INET, ipt.bind_address, &sin.sin_addr) != 1) {
 				ulog_err("HN %s:%d failed bind address", __FUNCTION__, __LINE__);
 				return (UPERF_FAILURE);
@@ -133,6 +133,7 @@ generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 			if (setsockopt(p->fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(int)) < 0) {
 				ulog_err("%s: Cannot set SO_REUSEADDR", protocol_to_str(p->type));
 			}
+			hn_print("HN %s:%d tid=%d, local_port=any bind_address=%s\n", __FUNCTION__, __LINE__, pthread_self(), ipt.bind_address);
 			if (bind(p->fd, (const struct sockaddr *)&sin, sizeof(struct sockaddr_in)) < 0) {
 				ulog_err("%s: Cannot bind to port %d", protocol_to_str(p->type), p->port);
 				return (UPERF_FAILURE);
