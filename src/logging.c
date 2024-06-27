@@ -241,7 +241,7 @@ uperf_log_msg(uperf_msg_type type, int myerrno, char *msg)
 
 hn_print(const char *fmt, ...)
 {
-#ifdef HN_DBG
+#ifdef DEBUG
 	va_list ap;
 
 	va_start(ap, fmt);

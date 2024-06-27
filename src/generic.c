@@ -103,6 +103,7 @@ generic_socket(protocol_t *p, int domain, int protocol)
 		ulog_err("%s: Cannot create socket", protocol_to_str(p->type));
 		return (UPERF_FAILURE);
 	}
+	uperf_debug("HN tid=%d new socket fd=%d\n", pthread_self(), p->fd);
 	return (UPERF_SUCCESS);
 }
 
@@ -114,13 +115,12 @@ generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 	const int off = 0;
 
 	HN_CUR_TIME();
-	uperf_debug("Connecting to %s:%d\n", p->host, p->port);
+	uperf_debug("HN tid=%d fd=%d Connecting to %s:%d\n", pthread_self(), p->fd, p->host, p->port);
 
-	hn_print("HN %s:%d\n", __FUNCTION__, __LINE__);
 	switch (serv->ss_family) {
 	case AF_INET:
 		if (ipt.bind_address) {
-			hn_print("HN %s:%d bind_address=%s\n", __FUNCTION__, __LINE__, ipt.bind_address);
+			hn_print("HN %s:%d tid=%d, bind_address=%s\n", __FUNCTION__, __LINE__, pthread_self(),  ipt.bind_address);
 			struct sockaddr_in sin;
 			memset(&sin, 0, sizeof(struct sockaddr_in));
 			sin.sin_family = AF_INET;
@@ -139,7 +139,7 @@ generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 			}
 
 			len = (socklen_t)sizeof(struct sockaddr_in);
-			hn_print("HN %s:%d bind_address=%s succeeded\n", __FUNCTION__, __LINE__, ipt.bind_address);
+			hn_print("HN %s:%d tid=%d bind_address=%s succeeded\n", __FUNCTION__, __LINE__, pthread_self(),ipt.bind_address);
 		}
 		((struct sockaddr_in *)serv)->sin_port = htons(p->port);
 		len = (socklen_t)sizeof(struct sockaddr_in);
@@ -160,11 +160,15 @@ generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 		return (UPERF_FAILURE);
 		break;
 	}
-	if (connect(p->fd, (const struct sockaddr *)serv, len) < 0) {
+	int err;
+	if ((err = connect(p->fd, (const struct sockaddr *)serv, len)) < 0) {
+		hn_print("HN %s:%d tid=%d connect() failed\n", __FUNCTION__, __LINE__, pthread_self());
+                fprintf(stderr, "HN Connection failed: %s\n", strerror(errno));
 		ulog_err("%s: Cannot connect to %s:%d",
 		         protocol_to_str(p->type), p->host, p->port);
 		return (UPERF_FAILURE);
 	}
+	uperf_info("HN tid=%d err=%d, connect() succeeded port=%d\n", pthread_self(), err, p->port);
 
 	return (UPERF_SUCCESS);
 }
