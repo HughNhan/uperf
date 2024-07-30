@@ -140,8 +140,8 @@ int connect_with_retry(int sockfd, const struct sockaddr *addr, socklen_t addrle
 
         // err = connect(p->fd, (const struct sockaddr *)serv, len) ;
 
-        if (ret_code < 0 && errno != EINPROGRESS) {
-	    fprintf(stderr, "HN %s:%d err=%d \n", __FUNCTION__, __LINE__, ret_code);
+        if (ret_code < 0 && ((errno != EINPROGRESS) &&  (errno != ETIMEDOUT))) {
+	    fprintf(stderr, "HN %s:%d errno=%d \n", __FUNCTION__, __LINE__, errno);
             perror("Connect failed");
             return -1;
         }
