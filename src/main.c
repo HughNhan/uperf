@@ -115,6 +115,14 @@ static char *proto[] = {
 	NULL
 };
 
+int
+uperf_conn_retries (void)
+{
+	return options.retries;  // HN
+}
+
+
+
 static void
 uperf_version()
 {
@@ -164,7 +172,7 @@ init_options(int argc, char **argv)
 	options.control_proto = PROTOCOL_TCP;
 	oserver = oclient = ofile = 0;
 
-	while ((ch = getopt(argc, argv, "B:E:epTgtfknasm:X:i:P:S:RvVh")) != EOF) {
+	while ((ch = getopt(argc, argv, "B:E:epTgtfknasm:X:i:P:S:RvVhr:")) != EOF) {
 		switch (ch) {
 		case 'B':
 			if (!optarg) {
@@ -277,6 +285,13 @@ init_options(int argc, char **argv)
 				uperf_fatal("Please specify interval\n");
 			}
 			break;
+		case 'r':				// HN retries
+			if (optarg) {	
+				options.retries = (int)
+					string_to_int(optarg);
+			}
+			break;
+
 		case 'P':
 			if (optarg) {
 				options.master_port = (int)

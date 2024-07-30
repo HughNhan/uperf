@@ -108,6 +108,108 @@ generic_socket(protocol_t *p, int domain, int protocol)
 }
 
 /* ARGSUSED */
+
+
+
+//##############
+
+#include <fcntl.h>
+
+#define TIMEOUT_SEC 	10
+#define RETRY_DELAY_SEC	 5
+#define MAX_RETRIES	 5
+#define HN_RETRY	 1
+
+int connect_wrapper (int sockfd, const struct sockaddr *addr, socklen_t addrlen) 
+{
+	fprintf(stderr, "HN %s:%d  sock=%d, addr=%p, len=%d \n", __FUNCTION__, __LINE__, sockfd, addr, addrlen);
+        return connect(sockfd, addr, addrlen) ;
+}
+
+int connect_with_retry(int sockfd, const struct sockaddr *addr, socklen_t addrlen, int max_retries) {
+    struct timeval timeout;
+    fd_set write_fds;
+    int ret;
+    int retries = 0;
+	fprintf(stderr, "HN %s:%d max_retries=%d\n", __FUNCTION__, __LINE__, max_retries);
+
+    while (retries < max_retries) {
+	fprintf(stderr, "HN %s:%d, retries=%d \n", __FUNCTION__, __LINE__, retries);
+        // Start connecting
+        int ret_code = connect_wrapper(sockfd, addr, addrlen);
+
+        // err = connect(p->fd, (const struct sockaddr *)serv, len) ;
+
+        if (ret_code < 0 && errno != EINPROGRESS) {
+	    fprintf(stderr, "HN %s:%d err=%d \n", __FUNCTION__, __LINE__, ret_code);
+            perror("Connect failed");
+            return -1;
+        }
+
+        // Initialize timeout
+        timeout.tv_sec = TIMEOUT_SEC;
+        timeout.tv_usec = 0;
+
+        // Monitor the socket file descriptor
+        FD_ZERO(&write_fds);
+        FD_SET(sockfd, &write_fds);
+        ret = select(sockfd + 1, NULL, &write_fds, NULL, &timeout);
+        if (ret <= 0) {
+            if (ret == 0) {
+                printf("Connection timed out\n");
+            } else {
+	        fprintf(stderr, "HN %s:%d \n", __FUNCTION__, __LINE__);
+                perror("Select error");
+            }
+            retries++;
+            if (retries < max_retries) {
+                printf("Retrying in %d seconds...\n", RETRY_DELAY_SEC);
+                sleep(RETRY_DELAY_SEC); // Wait before retrying
+                // Recreate the socket if needed or reset its state
+                continue;
+            }
+        } else {
+            // Check if the connection was successful
+            int so_error;
+            socklen_t len = sizeof(so_error);
+            if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &so_error, &len) < 0) {
+                perror("Getsockopt failed");
+	        fprintf(stderr, "HN %s:%d \n", __FUNCTION__, __LINE__);
+                return -1;
+            }
+            if (so_error != 0) {
+                fprintf(stderr, "Connection failed: %s\n", strerror(so_error));
+                retries++;
+                if (retries < max_retries) {
+                    printf("Retrying in %d seconds...\n", RETRY_DELAY_SEC);
+                    sleep(RETRY_DELAY_SEC); // Wait before retrying
+                } else {
+	            fprintf(stderr, "HN %s:%d \n", __FUNCTION__, __LINE__);
+                    return -1;
+                }
+            } else {
+                // Connection successful
+	        fprintf(stderr, "HN %s:%d \n", __FUNCTION__, __LINE__);
+                return 0;
+            }
+        }
+    }
+
+    fprintf(stderr, "Failed to connect after %d retries\n", max_retries);
+    return -1; // Indicate failure
+}
+
+
+//###############
+
+
+
+
+
+
+
+
+
 int
 generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 {
@@ -162,7 +264,18 @@ generic_connect(protocol_t *p, struct sockaddr_storage *serv)
 		break;
 	}
 	int err;
-	if ((err = connect(p->fd, (const struct sockaddr *)serv, len)) < 0) {
+	extern  int uperf_conn_retries();
+	int retries;
+	if ( (retries = uperf_conn_retries() )) {
+          fprintf(stderr, "HN %s:%d retry=1 \n", __FUNCTION__, __LINE__);
+          err = connect_with_retry(p->fd, (const struct sockaddr *)serv, len, retries);
+	//} else {
+	  //err = connect(p->fd, (const struct sockaddr *)serv, len) ;
+	} else {
+          fprintf(stderr, "HN %s:%d direct\n", __FUNCTION__, __LINE__);
+	  err = connect_wrapper(p->fd, (const struct sockaddr *)serv, len) ;
+	}
+	if (err < 0) {
 		hn_print("HN %s:%d tid=%d connect() failed\n", __FUNCTION__, __LINE__, pthread_self());
                 fprintf(stderr, "HN Connection failed: %s\n", strerror(errno));
 		ulog_err("%s: Cannot connect to %s:%d",
