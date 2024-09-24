@@ -239,6 +239,7 @@ uperf_log_msg(uperf_msg_type type, int myerrno, char *msg)
 	return (UPERF_SUCCESS);
 }
 
+void
 hn_print(const char *fmt, ...)
 {
 #ifdef DEBUG
@@ -248,6 +249,4 @@ hn_print(const char *fmt, ...)
 	(void) vprintf(fmt, ap);
 	va_end(ap);
 #endif //DEBUG
-
 }
-
